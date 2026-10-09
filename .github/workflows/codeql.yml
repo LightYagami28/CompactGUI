@@ -26,5 +26,6 @@ jobs:
           languages: csharp
       - run: ./eng/Prepare-LazyTranslate.ps1
         shell: pwsh
+      - run: dotnet restore CompactGUI.slnx
       - run: dotnet build CompactGUI.slnx --configuration Release --no-restore
       - uses: github/codeql-action/analyze@f3c49fd1ef3281abc41069b3dd22807a60c963f6 # v4
