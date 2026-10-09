@@ -341,10 +341,7 @@
                 <Grid>
                     <TextBlock HorizontalAlignment="Left" FontSize="11" Foreground="{StaticResource CardForegroundDisabled}">
                         <TextBlock.Text>
-                            <loc:MultiBinding Format="{}{0} of {1} completed" Context="Folder Compression Queue">
-                                <Binding Path="CompletedFolderCount" Mode="OneWay" />
-                                <Binding Path="Folders.Count" Mode="OneWay" />
-                            </loc:MultiBinding>
+                            <loc:Binding Path="CompletedQueueSummary" Mode="OneWay" />
                         </TextBlock.Text>
                     </TextBlock>
                     <ui:Button Padding="0" HorizontalAlignment="Right"

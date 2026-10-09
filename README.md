@@ -96,6 +96,21 @@ This tool is intentionally designed to only compress folders and files. Whole dr
 
 The compression is fully transparent - programs, games and files can still be accessed as normal, and show up in Explorer as they normally would — they'll just be decompressed into RAM at runtime, staying compressed on disk.
 
+## Development
+
+The solution targets .NET 10 and uses the upstream `IridiumIO/LazyTranslate` source to build its localisation packages. From a clean checkout, run:
+
+```powershell
+./eng/Prepare-LazyTranslate.ps1
+dotnet restore CompactGUI.slnx
+dotnet build CompactGUI.slnx --configuration Release --no-restore
+dotnet test CompactGUI.slnx --configuration Release --no-build --no-restore
+```
+
+The preparation script checks out a pinned upstream revision into the sibling `LazyTranslate` directory, refuses to overwrite a dirty checkout, and builds the two local NuGet packages. GitHub Actions runs the same build/test sequence, Dependabot tracks NuGet and Actions, and CodeQL scans the C# projects.
+
+SonarCloud CI is ready once repository variables `SONAR_ORGANIZATION` and `SONAR_PROJECT_KEY` and the repository secret `SONAR_TOKEN` are configured. The scan waits for and enforces the Quality Gate; it is not reported as configured until those account-specific values are supplied.
+
 ## Compression Modes
 
 By default, the program runs Compact with the `XPRESS8K` algorithm active. This provides a good balance between compression speed and size reduction. The default that Windows uses is `XPRESS4K` which is faster but compresses less.

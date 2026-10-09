@@ -105,6 +105,12 @@ Partial Public NotInheritable Class HomeViewModel : Inherits ObservableRecipient
         End Get
     End Property
 
+    Public ReadOnly Property CompletedQueueSummary As String
+        Get
+            Return LazyTranslate.L.TFC("Folder Compression Queue", "{0} of {1} completed", CompletedFolderCount, Folders.Count)
+        End Get
+    End Property
+
     Public ReadOnly Property UpNextFolderCount As Integer
         Get
             Return UpNextFolders.Count()
@@ -296,6 +302,7 @@ Partial Public NotInheritable Class HomeViewModel : Inherits ObservableRecipient
         OnPropertyChanged(NameOf(UpNextFolders))
         OnPropertyChanged(NameOf(CompletedFolders))
         OnPropertyChanged(NameOf(CompletedFolderCount))
+        OnPropertyChanged(NameOf(CompletedQueueSummary))
         OnPropertyChanged(NameOf(UpNextFolderCount))
         OnPropertyChanged(NameOf(HasUpNextFolders))
         OnPropertyChanged(NameOf(QueueCompletionProgress))

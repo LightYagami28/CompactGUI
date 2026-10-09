@@ -60,9 +60,10 @@ public static class WOFHelper
         Windows.Win32.Foundation.BOOL isExternalFile;
         UInt32 provider;
         WOFHelper.WOF_FILE_COMPRESSION_INFO_V1 info;
-        uint buffer = 8;
+        uint buffer = (uint)sizeof(WOF_FILE_COMPRESSION_INFO_V1);
 
-        var ret = PInvoke.WofIsExternalFile(fileInfo.FullName, &isExternalFile, &provider, &info, &buffer);
+        var result = PInvoke.WofIsExternalFile(fileInfo.FullName, out isExternalFile, out provider, &info, ref buffer);
+        Marshal.ThrowExceptionForHR((int)result);
 
         WOFCompressionAlgorithm algorithm = (WOFCompressionAlgorithm)info.Algorithm;
 

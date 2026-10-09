@@ -36,9 +36,7 @@ Public NotInheritable Class LocalisationService
             .InitialCulture = configuredLanguage,
             .CatalogueDirectory = LocalisationFolder,
             .ResourceAssembly = GetType(Application).Assembly,
-            .ApplicationName = "CompactGUI",
-            .ProgramVersion = Application.AppVersionText,
-            .OutputMissingTranslationsToDebug = False
+            .ApplicationName = "CompactGUI"
         })
     End Function
 

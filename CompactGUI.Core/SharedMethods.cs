@@ -197,16 +197,15 @@ public static class SharedMethods
 
     public static unsafe uint GetClusterSize(string folderPath)
     {
-        UInt32 lpSectorsPerCluster;
-        UInt32 lpBytesPerSector;
-
-        PInvoke.GetDiskFreeSpace(
+        if (!PInvoke.GetDiskFreeSpace(
             new DirectoryInfo(folderPath).Root.ToString(),
-            &lpSectorsPerCluster,
-            &lpBytesPerSector,
-            null,
-            null
-        );
+            out uint lpSectorsPerCluster,
+            out uint lpBytesPerSector,
+            out _,
+            out _))
+        {
+            throw new IOException($"Unable to query disk geometry for '{folderPath}'.", new System.ComponentModel.Win32Exception(Marshal.GetLastPInvokeError()));
+        }
 
         return lpSectorsPerCluster * lpBytesPerSector;
 
@@ -256,7 +255,7 @@ public static class SharedMethods
     public static unsafe long GetFileSizeOnDisk(string file)
     {
         uint highOrder;
-        uint lowOrder = PInvoke.GetCompressedFileSize(file, &highOrder);
+        uint lowOrder = PInvoke.GetCompressedFileSize(file, out highOrder);
         if (lowOrder == 0xFFFFFFFF && (Marshal.GetLastWin32Error() != 0)) return -1;
         return ((long)highOrder << 32) | lowOrder;
     }
@@ -272,6 +271,7 @@ public static class SharedMethods
             var user = WindowsIdentity.GetCurrent();
             var userSID = user.User;
             var userGroupSIDs = user.Groups;
+            if (userSID is null || userGroupSIDs is null) return false;
 
             var rules = dirSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
 

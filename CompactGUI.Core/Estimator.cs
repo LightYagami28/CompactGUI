@@ -159,7 +159,7 @@ public class Estimator
 
     unsafe long GetFirstLcn(string fileName)
     {
-        SafeFileHandle handle = File.OpenHandle(fileName);
+        using SafeFileHandle handle = File.OpenHandle(fileName);
 
         if (handle.IsInvalid) throw new IOException("Failed to open file handle for " + fileName);
 
@@ -169,16 +169,15 @@ public class Estimator
         int outBufferSize = 4096;
         byte* outBuffer = stackalloc byte[outBufferSize];
 
-        uint bytesReturned = 0;
+        ReadOnlySpan<byte> inputBuffer = new((byte*)&inBuffer, (int)inBufferSize);
+        Span<byte> outputBuffer = new(outBuffer, outBufferSize);
 
         var result = PInvoke.DeviceIoControl(
             handle,
             NTFSInterop.FSCTL_GET_RETRIEVAL_POINTERS,
-            &inBuffer,
-            inBufferSize,
-            outBuffer,
-            (uint)outBufferSize,
-            &bytesReturned,
+            inputBuffer,
+            outputBuffer,
+            out _,
             null);
 
         if (!result) return long.MaxValue;

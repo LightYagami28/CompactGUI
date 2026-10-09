@@ -128,8 +128,13 @@ public sealed class Analyser : IDisposable
 
     public List<ExtensionResult> GetPoorlyCompressedExtensions()
     {
-        // Only use PLINQ if the list is large enough to benefit from parallel processing
-        IEnumerable<AnalysedFileDetails> query = _analysedFileDetails?.Count <= 10000
+        if (_analysedFileDetails is null || _analysedFileDetails.Count == 0)
+        {
+            return [];
+        }
+
+        // Only use PLINQ if the list is large enough to benefit from parallel processing.
+        IEnumerable<AnalysedFileDetails> query = _analysedFileDetails.Count <= 10000
             ? _analysedFileDetails
             : _analysedFileDetails.AsParallel();
 

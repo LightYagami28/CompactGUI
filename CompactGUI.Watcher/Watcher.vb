@@ -28,6 +28,7 @@ Partial Public Class Watcher : Inherits ObservableRecipient : Implements IRecipi
     Private ReadOnly _logger As ILogger(Of Watcher)
     Private ReadOnly _settingsService As ISettingsService
     Private ReadOnly _idleDetector As IdleDetector
+    Private ReadOnly _initializationTask As Task
 
     <NotifyPropertyChangedFor(NameOf(TotalSaved))>
     <ObservableProperty> Private _LastAnalysed As DateTime
@@ -66,7 +67,7 @@ Partial Public Class Watcher : Inherits ObservableRecipient : Implements IRecipi
         BGCompactor = New BackgroundCompactor(Array.Empty(Of String), _logger, settingsService)
 
 
-        InitializeWatchedFoldersAsync()
+        _initializationTask = InitializeWatchedFoldersAsync()
 
 
     End Sub
@@ -94,6 +95,7 @@ Partial Public Class Watcher : Inherits ObservableRecipient : Implements IRecipi
     <ObservableProperty> Private _isRunning As Boolean = False
 
     Public Async Function RunWatcher(Optional runAll As Boolean = True, Optional cToken As CancellationToken = Nothing) As Task(Of Boolean)
+        Await _initializationTask
         IsRunning = True
         Try
             For Each watcher In WatchedFolders
@@ -187,7 +189,15 @@ Partial Public Class Watcher : Inherits ObservableRecipient : Implements IRecipi
     End Sub
 
     Private Async Function InitializeWatchedFoldersAsync() As Task
-        Dim initialWatchedFolders = Await GetWatchedFoldersFromJson()
+        Dim initialWatchedFolders As ObservableCollection(Of WatchedFolder)
+        Try
+            initialWatchedFolders = Await GetWatchedFoldersFromJson()
+        Catch ex As Exception When TypeOf ex Is IO.IOException OrElse
+                                   TypeOf ex Is UnauthorizedAccessException OrElse
+                                   TypeOf ex Is Security.SecurityException
+            _logger.LogError(ex, "Could not load the watched-folder configuration.")
+            Return
+        End Try
 
         If initialWatchedFolders Is Nothing Then Return
 

@@ -74,8 +74,13 @@ public sealed class Uncompactor : ICompressor, IDisposable
         {
             using (SafeFileHandle fs = File.OpenHandle(file))
             {
-                uint bytesReturned;
-                if (PInvoke.DeviceIoControl(fs, WOFHelper.FSCTL_DELETE_EXTERNAL_BACKING, null, 0, null, 0, &bytesReturned, null)) return FileOperationResult.Success;
+                if (PInvoke.DeviceIoControl(
+                        fs,
+                        WOFHelper.FSCTL_DELETE_EXTERNAL_BACKING,
+                        ReadOnlySpan<byte>.Empty,
+                        Span<byte>.Empty,
+                        out _,
+                        null)) return FileOperationResult.Success;
 
                 int errorCode = Marshal.GetLastPInvokeError();
                 return FileOperationRecovery.IsInsufficientDiskSpaceError(errorCode)

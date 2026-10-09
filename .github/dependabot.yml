@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20
+    labels:
+      - dependencies
+      - nuget
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 20
+    labels:
+      - dependencies
+      - github-actions
